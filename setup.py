@@ -15,7 +15,7 @@ setup(
         'lxml>=3.3.5',
     ],
     tests_require=['nose'],
-    scripts = 'muckrock',
+    scripts = ['muckrock'],
     classifiers=[
         'Programming Language :: Python :: 3.4',
     ],
