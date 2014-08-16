@@ -1,0 +1,5 @@
+Download information about Freedom of Information requests from
+`Muckrock <http://muckrock.com/>`_. Use like so. ::
+
+    pip3 install muckrock
+    muckrock
