@@ -21,7 +21,7 @@ def listings():
         downloaded_time = datetime.datetime.strptime(response.headers['Date'],
                                                      '%a, %d %b %Y %H:%M:%S GMT')
         for listing in parse_listings(html, downloaded_time):
-            foi_response = get(listing['request']))
+            foi_response = get(listing['request'])
             listing.update(parse_foi(foi_response))
             yield listing
         maybe_next_page = html.xpath('//a[text()="Next page »"]/@href')
