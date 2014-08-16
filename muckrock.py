@@ -6,7 +6,7 @@ import os
 import lxml.html
 import requests
 from picklecache import cache
-import pickle_warehouse.serializers
+import pickle_warehouse, pickle_warehouse.serializers
 
 @cache(os.path.join('~', '.muckrock'))
 def get(url):
@@ -14,9 +14,13 @@ def get(url):
     return requests.get(url, headers = headers)
 
 
-@cache('foia_files', serializer = pickle_warehouse.serializers.identity)
+foia_files = pickle_warehouse.Warehouse('foia_files',
+                 serializer = pickle_warehouse.serializers.identity)
 def get_foia_file(filename):
-    return requests.get('https://muckrock.s3.amazonaws.com/foia_files/' + filename)
+    if filename not in foia_files:
+        response = requests.get('https://muckrock.s3.amazonaws.com/foia_files/' + filename)
+        if response.ok:
+            foia_files[filename] = response.content
 
 def listings():
     url = 'https://www.muckrock.com/foi/list/?page=1'
