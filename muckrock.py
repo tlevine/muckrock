@@ -1,3 +1,4 @@
+import re
 import datetime
 from collections import OrderedDict
 import os
@@ -31,19 +32,8 @@ def parse_listings(html, downloaded_time):
         quiet = tr.xpath('td[position()=1]/em/text()')
         tags = [] if quiet == [] else quiet[0].split(', ')
 
-        listdate = list(tr.xpath('td[position()=5]/text()')[0].strip())
-
-        if ''.join(listdate).startswith('April'):
-            del(listdate[4])
-
-        if listdate[3] == '.':
-            pass
-        elif listdate[3] == ' ':
-            listdate.insert(3, '.')
-        else:
-            listdate[3] = '.'
-
-        stringdate = ''.join(listdate)
+        stringdate = str(tr.xpath('td[position()=5]/text()')[0].strip())
+        stringdate = re.sub(r'^([a-zA-Z]{3})[^ ]+', r'\1', stringdate)
 
         yield OrderedDict([
             ('downloaded', downloaded_time),
@@ -53,7 +43,7 @@ def parse_listings(html, downloaded_time):
             ('user', str(tr.xpath('td[position()=2]/a/@href')[0])),
             ('status', str(tr.xpath('td[position()=3]/span/text()')[0])),
             ('jurisdiction', str(tr.xpath('td[position()=4]/a/@href')[0])),
-            ('date', datetime.datetime.strptime(stringdate, '%b. %d, %Y').date()),
+            ('date', datetime.datetime.strptime(stringdate, '%b %d, %Y').date()),
         ])
 
 def main():
