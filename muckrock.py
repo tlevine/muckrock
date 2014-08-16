@@ -2,6 +2,7 @@ import re
 import datetime
 from collections import OrderedDict
 import os
+from thready import threaded
 
 import lxml.html
 import requests
@@ -84,8 +85,7 @@ def main():
     writer.writerow(list(first_listing.values()))
     for listing in l:
         listing['tags'] = ', '.join(listing['tags'])
-        for download in listing['downloads']:
-            get_foia_file(download.split('/')[-1])
+        threaded((dl.split('/')[-1] for dl in listing['downloads']), get_foia_file)
         del(listing['messages'])
         del(listing['downloads'])
         writer.writerow(list(listing.values()))
