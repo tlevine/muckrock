@@ -80,6 +80,8 @@ def main():
     l = listings()
     first_listing = next(l)
     first_listing['tags'] = ', '.join(first_listing['tags'])
+    first_listing['downloads'] = ', '.join(first_listing['downloads'])
+    del(first_listing['messages'])
 
     writer.writerow(list(first_listing.keys()))
     writer.writerow(list(first_listing.values()))
