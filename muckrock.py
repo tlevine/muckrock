@@ -86,7 +86,8 @@ def main():
     for listing in l:
         # foia_files
         filenames = (dl.split('/')[-1] for dl in listing['downloads'])
-        threaded(filenames, get_foia_file, num_threads = 20, join = False)
+        threaded(filenames, get_foia_file,
+                 num_threads = 20, daemon = False, join = False)
 
         # Remove lists
         listing['tags'] = ', '.join(listing['tags'])
