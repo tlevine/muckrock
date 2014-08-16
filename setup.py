@@ -16,4 +16,7 @@ setup(
     ],
     tests_require=['nose'],
     scripts = 'muckrock',
+    classifiers=[
+        'Programming Language :: Python :: 3.4',
+    ],
 )
