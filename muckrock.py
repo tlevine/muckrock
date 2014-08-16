@@ -1,9 +1,13 @@
+import os
+
 import lxml.html
+import requests
 from picklecache import cache
 
 @cache(os.path.join('~', '.muckrock'))
 def get(url):
-    return requests.get(url)
+    headers = {'User-Agent': 'https://pypi.python.org/pypi/muckrock'}
+    return requests.get(url, headers = headers)
 
 def listings():
     url = 'https://www.muckrock.com/foi/list/?page=1'
