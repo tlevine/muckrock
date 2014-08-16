@@ -6,6 +6,7 @@ from thready import threaded
 
 import lxml.html
 import requests
+import requests.exceptions
 from picklecache import cache
 import pickle_warehouse, pickle_warehouse.serializers
 
@@ -19,9 +20,13 @@ foia_files = pickle_warehouse.Warehouse('foia_files',
                  serializer = pickle_warehouse.serializers.identity)
 def get_foia_file(filename):
     if filename not in foia_files:
-        response = requests.get('https://muckrock.s3.amazonaws.com/foia_files/' + filename)
-        if response.ok:
-            foia_files[filename] = response.content
+        try:
+            response = requests.get('https://muckrock.s3.amazonaws.com/foia_files/' + filename)
+        except requests.exceptions.ConnectionError:
+            pass
+        else:
+            if response.ok:
+                foia_files[filename] = response.content
 
 def listings():
     url = 'https://www.muckrock.com/foi/list/?page=1'
