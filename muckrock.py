@@ -30,6 +30,21 @@ def parse_listings(html, downloaded_time):
     for tr in html.xpath('//table[@class="data-table"]/tr')[1:]:
         quiet = tr.xpath('td[position()=1]/em/text()')
         tags = [] if quiet == [] else quiet[0].split(', ')
+
+        listdate = list(tr.xpath('td[position()=5]/text()')[0].strip())
+
+        if ''.join(listdate).startswith('April'):
+            del(listdate[4])
+
+        if listdate[3] == '.':
+            pass
+        elif listdate[3] == ' ':
+            listdate.insert(3, '.')
+        else:
+            listdate[3] = '.'
+
+        stringdate = ''.join(listdate)
+
         yield OrderedDict([
             ('downloaded', downloaded_time),
             ('request', str(tr.xpath('td[position()=1]/a/@href')[0])),
@@ -38,9 +53,18 @@ def parse_listings(html, downloaded_time):
             ('user', str(tr.xpath('td[position()=2]/a/@href')[0])),
             ('status', str(tr.xpath('td[position()=3]/span/text()')[0])),
             ('jurisdiction', str(tr.xpath('td[position()=4]/a/@href')[0])),
-            ('date', datetime.datetime.strptime(tr.xpath('td[position()=5]/text()')[0].strip(), '%b. %d, %Y').date()),
+            ('date', datetime.datetime.strptime(stringdate, '%b. %d, %Y').date()),
         ])
 
 def main():
-    for listing in listings():
-        pass
+    import sys, csv
+    writer = csv.writer(sys.stdout)
+    l = listings()
+    first_listing = next(l)
+    first_listing['tags'] = ', '.join(first_listing['tags'])
+
+    writer.writerow(list(first_listing.keys()))
+    writer.writerow(list(first_listing.values()))
+    for listing in l:
+        listing['tags'] = ', '.join(listing['tags'])
+        writer.writerow(list(listing.values()))
