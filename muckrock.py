@@ -20,12 +20,19 @@ def listings():
         html.make_links_absolute(response.url)
         downloaded_time = datetime.datetime.strptime(response.headers['Date'],
                                                      '%a, %d %b %Y %H:%M:%S GMT')
-        yield from parse_listings(html, downloaded_time)
+        for listing in parse_listings(html, downloaded_time):
+            foi_response = get(listing['request']))
+            listing.update(parse_foi(foi_response))
+            yield listing
         maybe_next_page = html.xpath('//a[text()="Next page »"]/@href')
         if len(maybe_next_page) == 0:
             break
         else:
             url = maybe_next_page[0]
+
+def parse_foi(response):
+    return OrderedDict([
+    ])
 
 def parse_listings(html, downloaded_time):
     for tr in html.xpath('//table[@class="data-table"]/tr')[1:]:
