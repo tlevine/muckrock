@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='muckrock',
-    version='0.0.1',
+    version='0.0.2',
     description="Get data from Muckrock",
     author='Thomas Levine',
     author_email='_@thomaslevine.com',
