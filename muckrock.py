@@ -6,11 +6,17 @@ import os
 import lxml.html
 import requests
 from picklecache import cache
+import pickle_warehouse.serializers
 
 @cache(os.path.join('~', '.muckrock'))
 def get(url):
     headers = {'User-Agent': 'https://pypi.python.org/pypi/muckrock'}
     return requests.get(url, headers = headers)
+
+
+@cache('foia_files', serializer = pickle_warehouse.serializers.identity)
+def get_foia_file(filename):
+    return requests.get('https://muckrock.s3.amazonaws.com/foia_files/' + filename)
 
 def listings():
     url = 'https://www.muckrock.com/foi/list/?page=1'
@@ -31,7 +37,16 @@ def listings():
             url = maybe_next_page[0]
 
 def parse_foi(response):
+    html = lxml.html.fromstring(response.text)
+    html.make_links_absolute(response.url)
+
+    messages = ['\n\n'.join(div.xpath('strong/text()') + div.xpath('p/text()')) \
+                for div in html.xpath('id("tabs-request")/div')]
+    downloads = list(map(str, html.xpath('id("tabs")//a[text()="Download"]/@href')))
+
     return OrderedDict([
+        ('messages', messages),
+        ('downloads', downloads),
     ])
 
 def parse_listings(html, downloaded_time):
@@ -55,6 +70,7 @@ def parse_listings(html, downloaded_time):
 
 def main():
     import sys, csv
+
     writer = csv.writer(sys.stdout)
     l = listings()
     first_listing = next(l)
@@ -64,4 +80,8 @@ def main():
     writer.writerow(list(first_listing.values()))
     for listing in l:
         listing['tags'] = ', '.join(listing['tags'])
+        for download in listing['downloads']:
+            get_foia_file(download.split('/')[-1])
+        del(listing['messages'])
+        del(listing['downloads'])
         writer.writerow(list(listing.values()))
