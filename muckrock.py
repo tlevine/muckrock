@@ -84,8 +84,14 @@ def main():
     writer.writerow(list(first_listing.keys()))
     writer.writerow(list(first_listing.values()))
     for listing in l:
+        # foia_files
+        filenames = (dl.split('/')[-1] for dl in listing['downloads'])
+        threaded(filenames, get_foia_file, num_threads = 20, join = False)
+
+        # Remove lists
         listing['tags'] = ', '.join(listing['tags'])
-        threaded((dl.split('/')[-1] for dl in listing['downloads']), get_foia_file)
+        listing['downloads'] = ', '.join(listing['downloads'])
+        # listing['messages'] = ('\n\n' + ('-' * 60) + '\n\n').join(listing['messages'])
         del(listing['messages'])
-        del(listing['downloads'])
+
         writer.writerow(list(listing.values()))
